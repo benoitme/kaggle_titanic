@@ -7,6 +7,7 @@ import math
 
 # Data import
 raw_data = pd.read_csv('data/train.csv')
+raw_test = pd.read_csv("data/test.csv")
 
 # Let's start by looking at the data
 print(raw_data.head())
@@ -34,6 +35,17 @@ train["Parch"] = raw_data["Parch"]
 train["Survived"] = raw_data["Survived"]
 train.index = raw_data["PassengerId"]
 
+# Same thing on test sample
+test = pd.DataFrame()
+test["PassengerId"] = raw_test["PassengerId"]
+test["Pclass"] = raw_test["Pclass"]
+test["NameLen"] = raw_test["Name"].apply(len)
+test["Sex"] = raw_test["Sex"].apply(lambda x: 0 if x =="female" else 1)
+test["Age"] = raw_test["Age"].apply(lambda x: 0 if math.isnan(x) else int(x))
+test["Cabin"] = raw_test["Cabin"].apply(lambda x: 0 if type(x) == float else 1)
+test["SibSp"] = raw_data["SibSp"]
+test["Parch"] = raw_data["Parch"]
+
 # Lets plot the different features to see the most significant ones
 # With the SEM we can see which features are the most significant
 # Age does not seem to be that significant for instance
@@ -54,7 +66,6 @@ plt.figure(figsize=(12,12))
 plt.title('Pearson Correlation of Features', y=1.05, size=15)
 sns.heatmap(train.astype(float).corr(),linewidths=0.1,vmax=1.0, square=True, cmap=colormap, linecolor='white', annot=True)
 plt.show()
-
 
 # Let's do a cross validation for aaaaalll the models
 from sklearn.model_selection import train_test_split
@@ -98,7 +109,6 @@ results = {}
 for name, clf in zip(names, classifiers):
     scores = cross_val_score(clf, X_train, y_train, cv=5)
     results[name] = scores
-
     
 for name, scores in results.items():
     print("%20s | Accuracy: %0.2f%% (+/- %0.2f%%)" % (name, 100*scores.mean(), 100*scores.std() * 2))
