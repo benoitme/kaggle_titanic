@@ -33,14 +33,14 @@ test["SibSp"] = raw_data["SibSp"]
 test["Parch"] = raw_data["Parch"]
 
 # Première tentative en knn neighbors
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 X_train = train[["Pclass", "NameLen", "Sex", "Age", "Cabin", "SibSp", "Parch"]]
 y_train = np.ravel(train["Survived"])
 X_test = test[["Pclass", "NameLen", "Sex", "Age", "Cabin", "SibSp", "Parch"]]
 
-rfc = RandomForestClassifier(n_estimators=1000)
-rfc.fit(X_train, y_train)
+qda = QuadraticDiscriminantAnalysis()
+qda.fit(X_train, y_train)
 
-final_test = pd.DataFrame({"PassengerId":test["PassengerId"], "Survived":rfc.predict(X_test)})
+final_test = pd.DataFrame({"PassengerId":test["PassengerId"], "Survived":qda.predict(X_test)})
 final_test.to_csv("Submission.csv", index=False)
