@@ -23,7 +23,6 @@ print(raw_data.isnull().sum())
 # Visual data analysis
 # Let's display plots of the different characteristics
 # Transform data in something more 'readable' for ML algorithms
-# Transform data in something more "readable" for ML algorithms
 train = pd.DataFrame()
 train["Pclass"] = raw_data["Pclass"]
 train["NameLen"] = raw_data["Name"].apply(len)
@@ -32,6 +31,9 @@ train["Age"] = raw_data["Age"].apply(lambda x: 0 if math.isnan(x) else int(x))
 train["Cabin"] = raw_data["Cabin"].apply(lambda x: 0 if type(x) == float else 1)
 train["SibSp"] = raw_data["SibSp"]
 train["Parch"] = raw_data["Parch"]
+train['Fare'] = raw_data['Fare']
+raw_data['Embarked'] = raw_data['Embarked'].fillna(value='S')
+train["Embarked"] = raw_data['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
 train["Survived"] = raw_data["Survived"]
 train.index = raw_data["PassengerId"]
 
@@ -43,8 +45,12 @@ test["NameLen"] = raw_test["Name"].apply(len)
 test["Sex"] = raw_test["Sex"].apply(lambda x: 0 if x =="female" else 1)
 test["Age"] = raw_test["Age"].apply(lambda x: 0 if math.isnan(x) else int(x))
 test["Cabin"] = raw_test["Cabin"].apply(lambda x: 0 if type(x) == float else 1)
-test["SibSp"] = raw_data["SibSp"]
-test["Parch"] = raw_data["Parch"]
+test["SibSp"] = raw_test["SibSp"]
+test["Parch"] = raw_test["Parch"]
+test['Fare'] = raw_test['Fare']
+raw_test['Embarked'] = raw_test['Embarked'].fillna(value='S')
+train["Embarked"] = raw_test['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+
 
 # Lets plot the different features to see the most significant ones
 # With the SEM we can see which features are the most significant
