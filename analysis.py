@@ -23,7 +23,23 @@ raw_data['Fare'] = raw_data['Fare'].fillna(value=raw_data['Fare'].median())
 train['Fare'] = raw_data['Fare'].round().apply(int)
 raw_data['Embarked'] = raw_data['Embarked'].fillna(value='S')
 train['Embarked'] = raw_data['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+train['Family'] = 0
+for index, row in raw_data.iterrows():
+    train['Family'][index] = row['SibSp'] + row['Parch'] + 1
+train['Title'] = 0
+for index, row in raw_data.iterrows():
+    if 'Mr' in row['Name']:
+        train['Title'][index] = 1
+    elif 'Miss' in row['Name']:
+        train['Title'][index] = 2
+    elif 'Mrs' in row['Name']:
+        train['Title'][index] = 3
+    elif 'Master' in row['Name']:
+        train['Title'][index] = 4
+    else:
+        train['Title'][index] = 5
 train['Survived'] = raw_data['Survived']
+
 
 # Same thing on test sample
 test = pd.DataFrame()
@@ -39,6 +55,21 @@ raw_test['Fare'] = raw_test['Fare'].fillna(value=raw_test['Fare'].median())
 test['Fare'] = raw_test['Fare'].round().apply(int)
 raw_test['Embarked'] = raw_test['Embarked'].fillna(value='S')
 test['Embarked'] = raw_test['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+test['Title'] = 0
+test['Family'] = 0
+for index, row in raw_test.iterrows():
+    test['Family'][index] = row['SibSp'] + row['Parch'] + 1
+for index, row in raw_test.iterrows():
+    if 'Mr' in row['Name']:
+        test['Title'][index] = 1
+    elif 'Miss' in row['Name']:
+        test['Title'][index] = 2
+    elif 'Mrs' in row['Name']:
+        test['Title'][index] = 3
+    elif 'Master' in row['Name']:
+        test['Title'][index] = 4
+    else:
+        test['Title'][index] = 5
 
 
 # Lets combine the results of all the classifiers models
@@ -70,9 +101,10 @@ classifiers = [
     QuadraticDiscriminantAnalysis()
 ]
 
-X_train = train[['Pclass', 'NameLen', 'Sex', 'Age', 'Cabin', 'Parch', 'Embarked', 'Fare']]
+# Select the most importants features
+X_train = train[['Pclass', 'NameLen', 'Sex', 'Cabin', 'Embarked', 'Family', 'Title']]
 y_train = np.ravel(train['Survived'])
-X_test = test[['Pclass', 'NameLen', 'Sex', 'Age', 'Cabin', 'Parch', 'Embarked', 'Fare']]
+X_test = test[['Pclass', 'NameLen', 'Sex', 'Cabin', 'Embarked', 'Family', 'Title']]
 
 # Iterate over classifiers
 result = pd.DataFrame()
