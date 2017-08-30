@@ -73,44 +73,18 @@ for index, row in raw_test.iterrows():
 
 
 # Lets combine the results of all the classifiers models
-from sklearn.neural_network import MLPClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-
-names = ['Nearest Neighbors', 'Linear SVM', 'RBF SVM', 'Gaussian Process',
-         'Decision Tree', 'Random Forest', 'Neural Net', 'AdaBoost',
-         'Naive Bayes', 'QDA'
-        ]
-
-classifiers = [
-    KNeighborsClassifier(),
-    SVC(kernel='linear'),
-    SVC(kernel='rbf'),
-    GaussianProcessClassifier(),
-    DecisionTreeClassifier(),
-    RandomForestClassifier(n_estimators=1000),
-    MLPClassifier(),
-    AdaBoostClassifier(),
-    GaussianNB(),
-    QuadraticDiscriminantAnalysis()
-]
+from sklearn.ensemble import RandomForestClassifier
 
 # Select the most importants features
-X_train = train[['Pclass', 'NameLen', 'Sex', 'Cabin', 'Embarked', 'Family', 'Title']]
-y_train = np.ravel(train['Survived'])
-X_test = test[['Pclass', 'NameLen', 'Sex', 'Cabin', 'Embarked', 'Family', 'Title']]
+X_train = train[['Pclass', 'NameLen', 'Sex', 'Age', 'Cabin', 'Embarked', 'Family', 'Title']]
+y_train = np.ravel(train['Survived']) 
+X_test = test[['Pclass', 'NameLen', 'Sex', 'Age', 'Cabin', 'Embarked', 'Family', 'Title']]
 
-# Iterate over classifiers
-result = pd.DataFrame()
-for name, clf in zip(names, classifiers):
-    clf.fit(X_train, y_train)
-    result[name]= clf.predict(X_test)
+# Fit the model
+rfc = RandomForestClassifier(max_features='sqrt', n_estimators=1000, min_samples_leaf=3)
+rfc.fit(X_train, y_train)
+result = rfc.predict(X_test)
 
-sub = pd.DataFrame({'PassengerId':test['PassengerId'], 'Survived':result.mean(axis=1).round().apply(int)})
+# Save results
+sub = pd.DataFrame({'PassengerId':test['PassengerId'], 'Survived':result})
 sub.to_csv('Submission.csv', index=False)
