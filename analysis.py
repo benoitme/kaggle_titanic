@@ -1,15 +1,14 @@
 # Import packages
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import math
+pd.options.mode.chained_assignment = None  # default='warn'
 
 # Data import
-raw_data = pd.read_csv('data/train.csv')
+raw_train = pd.read_csv('data/train.csv')
 raw_test = pd.read_csv('data/test.csv')
 
 # Transform data in something more 'readable' for ML algorithms
+# Add new features based on data provided
 train = pd.DataFrame()
 train['PassengerId'] = raw_train['PassengerId']
 train['Survived'] = raw_train['Survived']
@@ -32,8 +31,8 @@ for index, row in raw_train.iterrows():
         train['Title'][index] = 5
 train['Family'] = 0
 train['Family'] = raw_train['SibSp'] + raw_train['Parch'] + 1
-train['SibSp'] = raw_data['SibSp']
-train['Parch'] = raw_data['Parch']
+train['SibSp'] = raw_train['SibSp']
+train['Parch'] = raw_train['Parch']
 train['HasFam'] = 0
 train['HasFam'][train['Family']>1] = 1
 raw_train['Embarked'] = raw_train['Embarked'].fillna(value='S')
@@ -80,14 +79,13 @@ test['CatFare'][(test['Fare'] > 7.91) & (test['Fare'] <= 14.454)] = 1
 test['CatFare'][(test['Fare'] > 14.454) & (test['Fare'] <= 31)]= 2
 test['CatFare'][test['Fare'] > 31] = 3
 
-
-# Lets combine the results of all the classifiers models
+# Lets use a Random classifier model
 from sklearn.ensemble import RandomForestClassifier
 
 # Select the most importants features
-X_train = train[['PPclass', 'Sex', 'Child', 'HasCabin', 'Embarked',  'Title', 'HasFam', 'CatFare', 'Family']]
+X_train = train[['Pclass', 'Sex', 'Child', 'HasCabin', 'Embarked',  'Title', 'HasFam', 'CatFare', 'Family']]
 y_train = np.ravel(train['Survived']) 
-X_test = test[['PPclass', 'Sex', 'Child', 'HasCabin', 'Embarked',  'Title', 'HasFam', 'CatFare', 'Family']]
+X_test = test[['Pclass', 'Sex', 'Child', 'HasCabin', 'Embarked',  'Title', 'HasFam', 'CatFare', 'Family']]
 
 # Fit the model
 rfc = RandomForestClassifier(max_features='sqrt', n_estimators=1000, min_samples_leaf=3)
